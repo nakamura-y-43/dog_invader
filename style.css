@@ -58,5 +58,21 @@ body {
 #restart-button {
     padding: 10px 20px;
     font-size: 16px;
-    cursor: pointer;
+}
+
+#trivia-container {
+    width: 800px;
+    margin: 10px auto;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #fafafa;
+    height: 50px; /* 高さを固定 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#trivia-text {
+    font-size: 16px;
+    color: #555;
 }

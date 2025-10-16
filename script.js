@@ -4,16 +4,30 @@ const scoreDisplay = document.getElementById('score');
 const gameOverScreen = document.getElementById('game-over-screen');
 const finalScore = document.getElementById('final-score');
 const restartButton = document.getElementById('restart-button');
+const triviaText = document.getElementById('trivia-text');
 
 let playerPosition = 375;
 let score = 0;
-const playerSpeed = 10; // スピードを少し調整
+const playerSpeed = 10;
 let gameIsOver = false;
 let activeIntervals = [];
 
 const keys = {};
 let lastShotTime = 0;
-const shootCooldown = 150; // 150msごとに発射可能
+const shootCooldown = 150;
+
+const triviaList = [
+    "ミッキーマウスの初代声優はウォルト・ディズニー本人だった。",
+    "世界一長い曲は、演奏が終わるまでに639年かかる。",
+    "フリスビーを開発した人の遺灰はフリスビーになっている。",
+    "ゾウは哺乳類の中で唯一ジャンプができない。",
+    "コカ・コーラは元々薬として販売されていた。",
+    "アンデスメロンの「アンデス」は「安心です」の略。",
+    "鉛筆1本で約56kmの線を書くことができる。",
+    "ライターはマッチより先に発明された。",
+    "adidasとPUMAの創業者は兄弟である。",
+    "海上自衛隊の金曜日のメニューは必ずカレーライス。"
+];
 
 // ゲーム開始処理
 function startGame() {
@@ -27,19 +41,24 @@ function startGame() {
     keys['ArrowRight'] = false;
     keys['Space'] = false;
 
-    // 既存の敵と弾を削除
     document.querySelectorAll('.enemy, .bullet').forEach(el => el.remove());
-
-    // インターバルをクリア
     activeIntervals.forEach(intervalId => clearInterval(intervalId));
     activeIntervals = [];
 
-    // 敵の生成を開始
     const enemyCreationInterval = setInterval(createEnemy, 2000);
     activeIntervals.push(enemyCreationInterval);
 
-    // ゲームループを開始
+    showRandomTrivia();
+    const triviaInterval = setInterval(showRandomTrivia, 5000);
+    activeIntervals.push(triviaInterval);
+
     requestAnimationFrame(gameLoop);
+}
+
+// 豆知識を表示
+function showRandomTrivia() {
+    const randomIndex = Math.floor(Math.random() * triviaList.length);
+    triviaText.textContent = `【豆知識】${triviaList[randomIndex]}`;
 }
 
 // キーの押下状態を記録
@@ -58,7 +77,6 @@ document.addEventListener('keyup', (e) => {
 function gameLoop() {
     if (gameIsOver) return;
 
-    // プレイヤーの移動
     if (keys['ArrowLeft']) {
         playerPosition -= playerSpeed;
         if (playerPosition < 0) playerPosition = 0;
@@ -69,7 +87,6 @@ function gameLoop() {
     }
     player.style.left = playerPosition + 'px';
 
-    // 弾の発射
     if (keys['Space']) {
         const now = Date.now();
         if (now - lastShotTime > shootCooldown) {
@@ -85,8 +102,8 @@ function createBullet() {
     const bullet = document.createElement('div');
     bullet.className = 'bullet';
     bullet.innerHTML = '🦴';
-    let bulletPositionX = playerPosition + 15; // プレイヤーの中央から
-    let bulletPositionY = 50; // プレイヤーの少し上から
+    let bulletPositionX = playerPosition + 15;
+    let bulletPositionY = 50;
 
     bullet.style.left = bulletPositionX + 'px';
     bullet.style.bottom = bulletPositionY + 'px';
@@ -97,7 +114,6 @@ function createBullet() {
         bulletPositionY += 10;
         bullet.style.bottom = bulletPositionY + 'px';
 
-        // 弾と敵の衝突判定
         const enemies = document.querySelectorAll('.enemy');
         enemies.forEach(enemy => {
             const enemyRect = enemy.getBoundingClientRect();
@@ -122,7 +138,6 @@ function createBullet() {
     activeIntervals.push(bulletInterval);
 }
 
-// 敵の生成
 function createEnemy() {
     const enemy = document.createElement('div');
     enemy.className = 'enemy';
@@ -143,7 +158,6 @@ function createEnemy() {
         enemyPositionY += 3;
         enemy.style.top = enemyPositionY + 'px';
 
-        // 敵とプレイヤーの衝突判定
         const playerRect = player.getBoundingClientRect();
         const enemyRect = enemy.getBoundingClientRect();
         if (!gameIsOver &&
@@ -162,7 +176,6 @@ function createEnemy() {
     activeIntervals.push(enemyInterval);
 }
 
-// スコア更新
 function updateScore(points) {
     if (points === 0) {
         score = 0;
@@ -172,7 +185,6 @@ function updateScore(points) {
     scoreDisplay.textContent = score;
 }
 
-// ゲームオーバー処理
 function gameOver() {
     gameIsOver = true;
     activeIntervals.forEach(intervalId => clearInterval(intervalId));
@@ -180,8 +192,6 @@ function gameOver() {
     gameOverScreen.style.display = 'block';
 }
 
-// リスタートボタンのイベント
 restartButton.addEventListener('click', startGame);
 
-// ゲーム開始
 startGame();
