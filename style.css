@@ -42,3 +42,21 @@ body {
     font-size: 24px;
     font-weight: bold;
 }
+
+#game-over-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+#restart-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
