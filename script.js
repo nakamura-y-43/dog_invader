@@ -5,9 +5,12 @@ const scoreDisplay = document.getElementById('score');
 let playerPosition = 375;
 let score = 0;
 const playerSpeed = 15;
+let gameIsOver = false;
+const activeIntervals = [];
 
 // プレイヤーの移動
 document.addEventListener('keydown', (e) => {
+    if (gameIsOver) return;
     if (e.key === 'ArrowLeft') {
         playerPosition -= playerSpeed;
         if (playerPosition < 0) {
@@ -24,6 +27,7 @@ document.addEventListener('keydown', (e) => {
 
 // 弾の発射
 document.addEventListener('keydown', (e) => {
+    if (gameIsOver) return;
     if (e.code === 'Space') {
         createBullet();
     }
@@ -45,7 +49,7 @@ function createBullet() {
         bulletPositionY += 10;
         bullet.style.bottom = bulletPositionY + 'px';
 
-        // 衝突判定
+        // 弾と敵の衝突判定
         const enemies = document.querySelectorAll('.enemy');
         enemies.forEach(enemy => {
             const enemyRect = enemy.getBoundingClientRect();
@@ -69,6 +73,7 @@ function createBullet() {
             clearInterval(bulletInterval);
         }
     }, 20);
+    activeIntervals.push(bulletInterval);
 }
 
 // 敵の生成
@@ -88,11 +93,25 @@ function createEnemy() {
         enemyPositionY += 3;
         enemy.style.top = enemyPositionY + 'px';
 
+        // 敵とプレイヤーの衝突判定
+        const playerRect = player.getBoundingClientRect();
+        const enemyRect = enemy.getBoundingClientRect();
+        if (
+            playerRect.left < enemyRect.right &&
+            playerRect.right > enemyRect.left &&
+            playerRect.top < enemyRect.bottom &&
+            playerRect.bottom > enemyRect.top
+        ) {
+            gameOver();
+        }
+
+
         if (enemyPositionY > 600) {
             enemy.remove();
             clearInterval(enemyInterval);
         }
     }, 50);
+    activeIntervals.push(enemyInterval);
 }
 
 // スコア更新
@@ -101,5 +120,14 @@ function updateScore(points) {
     scoreDisplay.textContent = score;
 }
 
+// ゲームオーバー処理
+function gameOver() {
+    gameIsOver = true;
+    activeIntervals.forEach(intervalId => clearInterval(intervalId));
+    alert('ゲームオーバー！ スコア: ' + score);
+}
+
+
 // 敵を定期的に生成
-setInterval(createEnemy, 2000);
+const enemyCreationInterval = setInterval(createEnemy, 2000);
+activeIntervals.push(enemyCreationInterval);
